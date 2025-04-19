@@ -17,6 +17,7 @@ server.py [Docs at https://github.com/jlowin/fastmcp?tab=readme-ov-file#running-
     - Run cli ". .venv/bin/activate"
     - Run cli "fastmcp install server.py"
     - Go to Claude Desktop and start a conversation, you should be able to see Claude Desktop has picked up on the tools provided by the MCP server
+        - Tutorial on this part: https://modelcontextprotocol.io/quickstart/user
 
 MCPClient.py [Docs: https://modelcontextprotocol.io/quickstart/client]
 

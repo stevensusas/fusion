@@ -1,4 +1,6 @@
 import asyncio
+import sys
+import argparse
 from typing import Optional
 from contextlib import AsyncExitStack
 
@@ -10,11 +12,13 @@ from dotenv import load_dotenv
 load_dotenv()  # load environment variables from .env
 
 class MCPClient:
-    def __init__(self):
+    def __init__(self, model="claude-3-5-sonnet-20241022", max_tokens=1000):
         # Initialize session and client objects
         self.session: Optional[ClientSession] = None
         self.exit_stack = AsyncExitStack()
         self.anthropic = Anthropic()
+        self.model = model
+        self.max_tokens = max_tokens
 
     async def connect_to_server(self, server_script_path: str):
         """Connect to an MCP server
@@ -63,8 +67,8 @@ class MCPClient:
 
         # Initial Claude API call
         response = self.anthropic.messages.create(
-            model="claude-3-5-sonnet-20241022",
-            max_tokens=1000,
+            model=self.model,
+            max_tokens=self.max_tokens,
             messages=messages,
             tools=available_tools
         )
@@ -96,8 +100,8 @@ class MCPClient:
 
                 # Get next response from Claude
                 response = self.anthropic.messages.create(
-                    model="claude-3-5-sonnet-20241022",
-                    max_tokens=1000,
+                    model=self.model,
+                    max_tokens=self.max_tokens,
                     messages=messages,
                 )
 
@@ -128,17 +132,20 @@ class MCPClient:
         await self.exit_stack.aclose()
 
 async def main():
-    if len(sys.argv) < 2:
-        print("Usage: python client.py <path_to_server_script>")
-        sys.exit(1)
-        
-    client = MCPClient()
+    parser = argparse.ArgumentParser(description='MCP Client')
+    parser.add_argument('server_script', help='Path to the server script (.py or .js)')
+    parser.add_argument('--model', default='claude-3-5-sonnet-20241022', help='Model to use for Claude')
+    parser.add_argument('--max-tokens', type=int, default=1000, help='Maximum tokens for Claude response')
+    
+    args = parser.parse_args()
+    
+    client = MCPClient(args.model, args.max_tokens)
     try:
-        await client.connect_to_server(sys.argv[1])
+        await client.connect_to_server(args.server_script)
+        
         await client.chat_loop()
     finally:
         await client.cleanup()
 
 if __name__ == "__main__":
-    import sys
     asyncio.run(main())
