@@ -30,6 +30,7 @@ type CanvasItem = {
   x: number
   y: number
   isComposite?: boolean
+  isRunning?: boolean
   connectionConfig?: ConnectionConfig
 }
 
@@ -353,9 +354,57 @@ export function IconCanvas() {
 
   // Handle spinning up a server
   const handleSpinUpServer = (itemId: string) => {
-    // This would typically communicate with a backend service
-    // For now, we'll just show a simple notification
-    alert(`Spinning up server ${itemId}. This would connect to your services in a real implementation.`)
+    // Find the composite server
+    const compositeServer = canvasItems.find(item => item.id === itemId);
+    if (!compositeServer || !compositeServer.isComposite) return;
+    
+    // Find all connections where this composite server is the source
+    const connectedServices = connections
+      .filter(conn => conn.sourceId === itemId)
+      .map(conn => {
+        // Find the target item
+        const targetItem = canvasItems.find(item => item.id === conn.targetId);
+        if (!targetItem) return null;
+        
+        return {
+          name: targetItem.icon.name,
+          config: targetItem.connectionConfig?.value || ""
+        };
+      })
+      .filter((service): service is NonNullable<typeof service> => service !== null);
+    
+    // Check if all connected services have configuration
+    const missingConfig = connectedServices.some(service => !service.config);
+    if (missingConfig) {
+      alert("Cannot spin up server: Some connected services are missing configuration.");
+      return;
+    }
+    
+    // Update the composite server to be running
+    setCanvasItems(prevItems => 
+      prevItems.map(item => 
+        item.id === itemId ? { ...item, isRunning: true } : item
+      )
+    );
+    
+    // Log the configuration to the console
+    console.log("Composite server configuration:", connectedServices);
+    
+    // Show the notification for user feedback
+    alert(`Spinning up server ${itemId} with ${connectedServices.length} connected services.`);
+  }
+
+  // Handle spinning down a server
+  const handleSpinDownServer = (itemId: string) => {
+    // Update the composite server to not be running
+    setCanvasItems(prevItems => 
+      prevItems.map(item => 
+        item.id === itemId ? { ...item, isRunning: false } : item
+      )
+    );
+    
+    // Show notification for user feedback
+    alert(`Spinning down server ${itemId}.`);
   }
 
   // Calculate the center point of an item
@@ -525,15 +574,25 @@ export function IconCanvas() {
                   {!item.isComposite && item.connectionConfig && item.connectionConfig.value && (
                     <div className="absolute -top-1 -right-1 h-3 w-3 bg-green-500 rounded-full" title="Has configuration" />
                   )}
+                  {item.isComposite && item.isRunning && (
+                    <div className="absolute -top-1 -right-1 h-3 w-3 bg-green-500 rounded-full" title="Server is running" />
+                  )}
                 </div>
               </div>
             </ContextMenuTrigger>
             <ContextMenuContent>
               {item.isComposite ? (
-                <ContextMenuItem onClick={() => handleSpinUpServer(item.id)}>
-                  <Server className="mr-2 h-4 w-4" />
-                  <span>Spin Up Server</span>
-                </ContextMenuItem>
+                item.isRunning ? (
+                  <ContextMenuItem onClick={() => handleSpinDownServer(item.id)}>
+                    <Server className="mr-2 h-4 w-4" />
+                    <span>Spin Down Server</span>
+                  </ContextMenuItem>
+                ) : (
+                  <ContextMenuItem onClick={() => handleSpinUpServer(item.id)}>
+                    <Server className="mr-2 h-4 w-4" />
+                    <span>Spin Up Server</span>
+                  </ContextMenuItem>
+                )
               ) : (
                 <ContextMenuItem onClick={() => handleOpenConfigDialog(item.id)}>
                   <Settings className="mr-2 h-4 w-4" />
