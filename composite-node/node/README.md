@@ -13,8 +13,9 @@ server.py [Docs at https://github.com/jlowin/fastmcp?tab=readme-ov-file#running-
     - Download Claude Desktop (https://claude.ai/download)
     - Login to and setup Claude Desktop
     - Make sure you're in the /client directory
-    - Run cli "uv install" (this step might not be necessary, lmk)
-    - Run cli ". .venv/bin/activate"
+    - Run cli "uv venv"
+    - Run cli "uv sync"
+    - Run cli "source .venv/bin/activate"
     - Run cli "fastmcp install server.py"
     - Go to Claude Desktop and start a conversation, you should be able to see Claude Desktop has picked up on the tools provided by the MCP server
         - Tutorial on this part: https://modelcontextprotocol.io/quickstart/user
@@ -29,7 +30,7 @@ MCPClient.py [Docs: https://modelcontextprotocol.io/quickstart/client]
     - Run cli "npm run build"
     - go to /composite-node/client directory
     - Run cli "npm install"
-    - Run cli "uv install" (might not be necessary)
+    - Run cli "uv sync"
     - Run cli "uv run MCPClient.py [path]"
         - path = ../mcp-servers/src/github/dist/index.js for Github MCP
         - path = ../mcp-servers/src/postgres/dist/index.js for PostgreSQL MCP
