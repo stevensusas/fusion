@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
-import { Layers, Server, Settings } from "lucide-react"
+import { Layers, Server, Settings, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
@@ -14,6 +14,8 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu"
 import { ConnectionConfigForm, type ConnectionConfig } from "@/components/connection-config-form"
+import { startServer, stopServer, getServerUrl } from "@/lib/server-service"
+import { ChatPopup } from "@/components/chat-popup"
 
 // Define icon type
 type IconType = {
@@ -64,6 +66,9 @@ export function IconCanvas() {
   const [configDialogOpen, setConfigDialogOpen] = useState(false)
   // State for the item that has the config dialog open
   const [configDialogItemId, setConfigDialogItemId] = useState<string | null>(null)
+  const [activeChat, setActiveChat] = useState<string | null>(null)
+  const [serverUrl, setServerUrl] = useState<string | null>(null)
+  const [isStartingServer, setIsStartingServer] = useState(false)
 
   // Define composite server icon
   const compositeServerIcon: IconType = {
@@ -353,7 +358,7 @@ export function IconCanvas() {
   }
 
   // Handle spinning up a server
-  const handleSpinUpServer = (itemId: string) => {
+  const handleSpinUpServer = async (itemId: string) => {
     // Find the composite server
     const compositeServer = canvasItems.find(item => item.id === itemId);
     if (!compositeServer || !compositeServer.isComposite) return;
@@ -380,31 +385,71 @@ export function IconCanvas() {
       return;
     }
     
-    // Update the composite server to be running
-    setCanvasItems(prevItems => 
-      prevItems.map(item => 
-        item.id === itemId ? { ...item, isRunning: true } : item
-      )
-    );
-    
-    // Log the configuration to the console
-    console.log("Composite server configuration:", connectedServices);
-    
-    // Show the notification for user feedback
-    alert(`Spinning up server ${itemId} with ${connectedServices.length} connected services.`);
+    try {
+      // Show loading indicator
+      setIsStartingServer(true);
+      
+      // Start the server process
+      const url = await startServer(itemId, connectedServices);
+      
+      // Update the composite server to be running
+      setCanvasItems(prevItems => 
+        prevItems.map(item => 
+          item.id === itemId ? { ...item, isRunning: true } : item
+        )
+      );
+      
+      // Open the chat popup
+      setServerUrl(url);
+      setActiveChat(itemId);
+      
+      console.log("Composite server configuration:", connectedServices);
+      console.log("Server running at:", url);
+    } catch (error) {
+      console.error("Failed to start server:", error);
+      alert(`Failed to start server: ${error}`);
+    } finally {
+      setIsStartingServer(false);
+    }
   }
 
   // Handle spinning down a server
-  const handleSpinDownServer = (itemId: string) => {
-    // Update the composite server to not be running
-    setCanvasItems(prevItems => 
-      prevItems.map(item => 
-        item.id === itemId ? { ...item, isRunning: false } : item
-      )
-    );
+  const handleSpinDownServer = async (itemId: string) => {
+    // Stop the server process
+    const success = await stopServer(itemId);
     
-    // Show notification for user feedback
-    alert(`Spinning down server ${itemId}.`);
+    if (success) {
+      // Update the composite server to not be running
+      setCanvasItems(prevItems => 
+        prevItems.map(item => 
+          item.id === itemId ? { ...item, isRunning: false } : item
+        )
+      );
+      
+      // Close chat if it's open
+      if (activeChat === itemId) {
+        setActiveChat(null);
+        setServerUrl(null);
+      }
+      
+      console.log(`Server ${itemId} stopped successfully.`);
+    } else {
+      console.error(`Failed to stop server ${itemId}.`);
+      alert(`Failed to stop server ${itemId}.`);
+    }
+  }
+
+  // Handle opening chat with a running server
+  const handleOpenChat = (itemId: string) => {
+    // Get the cached server URL
+    const url = getServerUrl(itemId);
+    if (!url) {
+      alert("Server is not running. Please spin up the server first.");
+      return;
+    }
+    
+    setServerUrl(url);
+    setActiveChat(itemId);
   }
 
   // Calculate the center point of an item
@@ -582,17 +627,25 @@ export function IconCanvas() {
             </ContextMenuTrigger>
             <ContextMenuContent>
               {item.isComposite ? (
-                item.isRunning ? (
-                  <ContextMenuItem onClick={() => handleSpinDownServer(item.id)}>
-                    <Server className="mr-2 h-4 w-4" />
-                    <span>Spin Down Server</span>
-                  </ContextMenuItem>
-                ) : (
-                  <ContextMenuItem onClick={() => handleSpinUpServer(item.id)}>
-                    <Server className="mr-2 h-4 w-4" />
-                    <span>Spin Up Server</span>
-                  </ContextMenuItem>
-                )
+                <>
+                  {item.isRunning ? (
+                    <>
+                      <ContextMenuItem onClick={() => handleOpenChat(item.id)}>
+                        <MessageSquare className="mr-2 h-4 w-4" />
+                        <span>Open Chat</span>
+                      </ContextMenuItem>
+                      <ContextMenuItem onClick={() => handleSpinDownServer(item.id)}>
+                        <Server className="mr-2 h-4 w-4" />
+                        <span>Spin Down Server</span>
+                      </ContextMenuItem>
+                    </>
+                  ) : (
+                    <ContextMenuItem onClick={() => handleSpinUpServer(item.id)}>
+                      <Server className="mr-2 h-4 w-4" />
+                      <span>Spin Up Server</span>
+                    </ContextMenuItem>
+                  )}
+                </>
               ) : (
                 <ContextMenuItem onClick={() => handleOpenConfigDialog(item.id)}>
                   <Settings className="mr-2 h-4 w-4" />
@@ -674,6 +727,29 @@ export function IconCanvas() {
           onSave={handleSaveConnectionConfig}
           initialConfig={configDialogItem.connectionConfig || { value: "" }}
         />
+      )}
+
+      {/* Chat popup */}
+      {activeChat && serverUrl && (
+        <ChatPopup
+          isOpen={true}
+          onClose={() => setActiveChat(null)}
+          serverUrl={serverUrl}
+          serverName={canvasItems.find(item => item.id === activeChat)?.icon.name || "Composite Server"}
+        />
+      )}
+
+      {/* Loading overlay */}
+      {isStartingServer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <div className="flex justify-center mb-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900">Starting Server</h3>
+            <p className="text-gray-600 mt-2">This may take a few moments...</p>
+          </div>
+        </div>
       )}
 
       {/* Add CSS for animated dashed lines */}
