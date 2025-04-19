@@ -1,17 +1,22 @@
 import asyncio
 import argparse
-from typing import Optional, Dict
+from typing import Optional
 from contextlib import AsyncExitStack
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 from anthropic import Anthropic
 from dotenv import load_dotenv
+import os
 
 load_dotenv()  # load environment variables from .env
+github_pat = os.environ.get('GITHUB_PAT')
+postgres_url = os.environ.get('POSTGRES_URL')
+redis_url = os.environ.get('REDIS_URL')
+sentry_auth_token = os.environ.get('SENTRY_AUTH_TOKEN')
 
-class MCPClient:
-    def __init__(self, server_script_path: str, env_variable: Optional[str] = None, env_name: Optional[str] = None):
+class CompositeServer:
+    def __init__(self, server_script_path: str, github_pat: Optional[str] = None, postgres_url: Optional[str] = None, redis_url: Optional[str] = None, sentry_auth_token: Optional[str] = None):
         # Initialize session and client objects
         self.session: Optional[ClientSession] = None
         self.exit_stack = AsyncExitStack()
@@ -19,8 +24,10 @@ class MCPClient:
         self.model = "claude-3-5-sonnet-20241022"
         self.max_tokens = 1000
         self.server_script_path = server_script_path
-        self.env_variable = env_variable
-        self.env_name = env_name or "AUTH_TOKEN"
+        self.github_pat = github_pat
+        self.postgres_url = postgres_url
+        self.redis_url = redis_url
+        self.sentry_auth_token = sentry_auth_token
 
     async def connect_to_server(self):
         """Connect to an MCP server"""
@@ -32,21 +39,21 @@ class MCPClient:
             
         command = "python" if is_python else "node"
         
-        # For JavaScript modules, pass the env_variable as an argument AFTER the script path
-        # For Python modules, use environment variables
-        if is_js and self.env_variable:
-            print(f"Passing {self.env_name} as a command-line argument to: {server_script_path}")
-            args = [server_script_path, self.env_variable]
-            env_dict = None
-        else:
-            args = [server_script_path]
-            env_dict = {self.env_name: self.env_variable} if self.env_variable else None
-            if env_dict:
-                print(f"Setting environment variable {self.env_name} for: {server_script_path}")
+        # Create a clean environment dictionary, filtering out None values
+        env_dict = {}
+        if self.github_pat:
+            env_dict["GITHUB_PAT"] = self.github_pat
+        if self.postgres_url:
+            env_dict["POSTGRES_URL"] = self.postgres_url
+        if self.redis_url:
+            env_dict["REDIS_URL"] = self.redis_url
+        if self.sentry_auth_token:
+            env_dict["SENTRY_AUTH_TOKEN"] = self.sentry_auth_token
             
+        # Create server parameters with the environment dictionary
         server_params = StdioServerParameters(
             command=command,
-            args=args,
+            args=[server_script_path],
             env=env_dict
         )
         
@@ -158,10 +165,13 @@ class MCPClient:
 async def main():
     parser = argparse.ArgumentParser(description='MCP Client')
     parser.add_argument('server_script', help='Path to the server script (.py or .js)')
-    
+    parser.add_argument('--GITHUB_PAT', help='Environment variable to pass to the server script', default=None)
+    parser.add_argument('--POSTGRES_URL', help='Environment variable to pass to the server script', default=None)
+    parser.add_argument('--REDIS_URL', help='Environment variable to pass to the server script', default=None)
+    parser.add_argument('--SENTRY_AUTH_TOKEN', help='Environment variable to pass to the server script', default=None)
     args = parser.parse_args()
     
-    client = MCPClient(args.server_script)
+    client = CompositeServer(args.server_script, args.GITHUB_PAT, args.POSTGRES_URL, args.REDIS_URL, args.SENTRY_AUTH_TOKEN)
     try:
         await client.connect_to_server()
         
