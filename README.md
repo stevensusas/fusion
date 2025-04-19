@@ -1,5 +1,8 @@
 # Fusion: Server-side MCP Orchestration
 
+[Link to Slides](https://docs.google.com/presentation/d/1Nz4xa8kHiMg__8Uek5_Cq07a6mrCtS8q-oaCjpU1TM8/edit?usp=sharing) | [Link to Demo](https://www.youtube.com/watch?v=bhWKkrYuCjI)
+
+
 ## Setup (For first time after cloning the repository)
 
 1. ```cd fusion-app && npm install```
