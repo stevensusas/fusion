@@ -1,6 +1,6 @@
 # Starter code to build composite MCP servers
 
-server.py
+server.py [Docs at https://github.com/jlowin/fastmcp?tab=readme-ov-file#running-your-server]
 
 - Starter code to build a composite MCP server with capability to mount multiple pre-built third party MCP servers
 - To run in development mode (for debugging and initial testing): 
@@ -18,7 +18,7 @@ server.py
     - Run cli "fastmcp install server.py"
     - Go to Claude Desktop and start a conversation, you should be able to see Claude Desktop has picked up on the tools provided by the MCP server
 
-MCPClient.py
+MCPClient.py [Docs: https://modelcontextprotocol.io/quickstart/client]
 
 - Starter code, a chat application that allows you to chat with an agent with access to a specified third-party MCP server on the cli
 - You can chat with Github, PostgreSQL, Redis, and Sentry MCP Servers. Source code for these servers are found in /root/composite-node/mcp_servers/src
