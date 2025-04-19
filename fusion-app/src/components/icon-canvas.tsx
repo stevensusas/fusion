@@ -338,11 +338,30 @@ export function IconCanvas() {
 
   // Handle clearing the canvas
   const handleClearCanvas = () => {
-    setCanvasItems([])
-    setConnections([])
-    setSelectedItem(null)
-    setConnectionMode(false)
-    setConnectionSource(null)
+    // Find all running composite servers and shut them down
+    const runningServers = canvasItems.filter(item => item.isComposite && item.isRunning);
+    
+    // Create a promise to stop all servers
+    const shutdownPromises = runningServers.map(server => stopServer(server.id));
+    
+    // Wait for all servers to be shut down, then clear the canvas
+    Promise.all(shutdownPromises)
+      .then(() => {
+        console.log("All composite servers shut down successfully.");
+      })
+      .catch(error => {
+        console.error("Error shutting down some servers:", error);
+      })
+      .finally(() => {
+        // Clear the canvas state
+        setCanvasItems([]);
+        setConnections([]);
+        setSelectedItem(null);
+        setConnectionMode(false);
+        setConnectionSource(null);
+        setActiveChat(null);
+        setServerUrl(null);
+      });
   }
 
   // Handle starting connection mode
