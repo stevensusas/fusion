@@ -12,20 +12,18 @@ from dotenv import load_dotenv
 load_dotenv()  # load environment variables from .env
 
 class MCPClient:
-    def __init__(self, model="claude-3-5-sonnet-20241022", max_tokens=1000):
+    def __init__(self, server_script_path: str):
         # Initialize session and client objects
         self.session: Optional[ClientSession] = None
         self.exit_stack = AsyncExitStack()
         self.anthropic = Anthropic()
-        self.model = model
-        self.max_tokens = max_tokens
+        self.model = "claude-3-5-sonnet-20241022"
+        self.max_tokens = 1000
+        self.server_script_path = server_script_path
 
-    async def connect_to_server(self, server_script_path: str):
-        """Connect to an MCP server
-        
-        Args:
-            server_script_path: Path to the server script (.py or .js)
-        """
+    async def connect_to_server(self):
+        """Connect to an MCP server"""
+        server_script_path = self.server_script_path
         is_python = server_script_path.endswith('.py')
         is_js = server_script_path.endswith('.js')
         if not (is_python or is_js):
@@ -109,6 +107,18 @@ class MCPClient:
 
         return "\n".join(final_text)
 
+    async def process_single_query(self, query: str) -> str:
+        """Process a single query and return a direct response
+        
+        Args:
+            query: The user's query string
+            
+        Returns:
+            A single response string
+        """
+        await self.connect_to_server()
+        return await self.process_query(query)
+
     async def chat_loop(self):
         """Run an interactive chat loop"""
         print("\nMCP Client Started!")
@@ -134,14 +144,12 @@ class MCPClient:
 async def main():
     parser = argparse.ArgumentParser(description='MCP Client')
     parser.add_argument('server_script', help='Path to the server script (.py or .js)')
-    parser.add_argument('--model', default='claude-3-5-sonnet-20241022', help='Model to use for Claude')
-    parser.add_argument('--max-tokens', type=int, default=1000, help='Maximum tokens for Claude response')
     
     args = parser.parse_args()
     
-    client = MCPClient(args.model, args.max_tokens)
+    client = MCPClient(args.server_script)
     try:
-        await client.connect_to_server(args.server_script)
+        await client.connect_to_server()
         
         await client.chat_loop()
     finally:

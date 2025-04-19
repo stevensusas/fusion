@@ -1,33 +1,34 @@
 from fastmcp import FastMCP
 import os
+from MCPClient import MCPClient
 
 # --- Github MCP ---
 github_mcp = FastMCP("Github-MCP")
 
 @github_mcp.tool()
 def github_tool(): 
-    return "Github MCP"
+    return "Github OK"
 
 # --- Postgres MCP ---
 postgres_mcp = FastMCP("Postgres-MCP")
 
 @postgres_mcp.tool()
 def postgres_tool():
-    return "Postgres MCP"
+    return "Github OK"
 
 # --- Redis MCP ---
 redis_mcp = FastMCP("Redis-MCP")
 
 @redis_mcp.tool()
 def redis_tool():
-    return "Redis MCP"
+    return "Github OK"
 
 # --- Sentry MCP ---
 sentry_mcp = FastMCP("Sentry-MCP")
 
 @sentry_mcp.tool()
 def sentry_tool():
-    return "Sentry MCP"
+    return "Sentry OK"
 
 # Create the composite MCP
 mcp = FastMCP("Composite")
@@ -49,19 +50,15 @@ include_all = not (use_github or use_postgres or use_redis or use_sentry)
 # Mount selected sub-apps
 if use_github or include_all:
     mcp.mount("github", github_mcp)
-    print("Mounted Github MCP")
     
 if use_postgres or include_all:
     mcp.mount("postgres", postgres_mcp)
-    print("Mounted Postgres MCP")
     
 if use_redis or include_all:
     mcp.mount("redis", redis_mcp)
-    print("Mounted Redis MCP")
     
 if use_sentry or include_all:
     mcp.mount("sentry", sentry_mcp)
-    print("Mounted Sentry MCP")
 
 if __name__ == "__main__":    
     mcp.run()
