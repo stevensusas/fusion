@@ -3,10 +3,17 @@
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
-import { Layers, Server } from "lucide-react"
+import { Layers, Server, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu"
+import { ConnectionConfigForm, type ConnectionConfig } from "@/components/connection-config-form"
 
 // Define icon type
 type IconType = {
@@ -23,6 +30,7 @@ type CanvasItem = {
   x: number
   y: number
   isComposite?: boolean
+  connectionConfig?: ConnectionConfig
 }
 
 // Define connection type
@@ -51,6 +59,10 @@ export function IconCanvas() {
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 })
   // State for tracking which item is being dragged
   const [draggedItem, setDraggedItem] = useState<string | null>(null)
+  // State for config dialog
+  const [configDialogOpen, setConfigDialogOpen] = useState(false)
+  // State for the item that has the config dialog open
+  const [configDialogItemId, setConfigDialogItemId] = useState<string | null>(null)
 
   // Define composite server icon
   const compositeServerIcon: IconType = {
@@ -129,6 +141,16 @@ export function IconCanvas() {
 
   // Function to get icon by id
   const getIconById = (id: string) => icons.find((icon) => icon.id === id) || icons[0]
+  
+  // Function to get base icon id from full id
+  const getBaseIconId = (fullId: string) => {
+    // Extract the base icon id from the full id (e.g., "postgres-123456789" -> "postgres")
+    const match = fullId.match(/^([^-]+)-\d+$/)
+    return match ? match[1] : fullId
+  }
+
+  // Function to get item by id
+  const getItemById = (id: string) => canvasItems.find((item) => item.id === id)
 
   // Handle starting to drag an icon from the sidebar
   const handleDragStart = (e: React.DragEvent, icon: IconType) => {
@@ -167,6 +189,7 @@ export function IconCanvas() {
         icon,
         x,
         y,
+        connectionConfig: { value: "" },
       }
 
       setCanvasItems([...canvasItems, newItem])
@@ -233,6 +256,21 @@ export function IconCanvas() {
       // Normal selection
       setSelectedItem(itemId)
     }
+  }
+
+  // Handle opening config dialog
+  const handleOpenConfigDialog = (itemId: string) => {
+    setConfigDialogItemId(itemId)
+    setConfigDialogOpen(true)
+  }
+
+  // Handle saving connection config
+  const handleSaveConnectionConfig = (itemId: string, config: ConnectionConfig) => {
+    setCanvasItems(
+      canvasItems.map((item) =>
+        item.id === itemId ? { ...item, connectionConfig: config } : item
+      )
+    )
   }
 
   // Handle starting to drag an item on the canvas
@@ -403,6 +441,9 @@ export function IconCanvas() {
   const selectedItemData = selectedItem ? canvasItems.find((item) => item.id === selectedItem) : null
   const isCompositeSelected = selectedItemData?.isComposite || false
 
+  // Get the item for config dialog
+  const configDialogItem = configDialogItemId ? getItemById(configDialogItemId) : null
+
   return (
     <div className="flex h-full w-full">
       {/* Canvas area */}
@@ -456,23 +497,53 @@ export function IconCanvas() {
           })}
         </svg>
 
-        {/* Render canvas items */}
+        {/* Render canvas items with context menu (except for composite servers) */}
         {canvasItems.map((item) => (
-          <div
-            key={item.id}
-            className={`absolute cursor-move p-2 rounded-md ${
-              selectedItem === item.id
-                ? "bg-blue-100 ring-2 ring-blue-500"
-                : item.isComposite
-                  ? "bg-purple-50 hover:bg-purple-100"
-                  : "hover:bg-gray-200"
-            } ${connectionMode && connectionSource !== item.id ? "hover:ring-2 hover:ring-purple-500" : ""}`}
-            style={{ left: `${item.x - 16}px`, top: `${item.y - 16}px` }}
-            onClick={(e) => handleItemClick(e, item.id)}
-            onMouseDown={(e) => handleItemDragStart(e, item.id)}
-          >
-            {item.icon.component}
-          </div>
+          item.isComposite ? (
+            // Render composite server without context menu
+            <div
+              key={item.id}
+              className={`absolute cursor-move p-2 rounded-md ${
+                selectedItem === item.id
+                  ? "bg-blue-100 ring-2 ring-blue-500"
+                  : "bg-purple-50 hover:bg-purple-100"
+              } ${connectionMode && connectionSource !== item.id ? "hover:ring-2 hover:ring-purple-500" : ""}`}
+              style={{ left: `${item.x - 16}px`, top: `${item.y - 16}px` }}
+              onClick={(e) => handleItemClick(e, item.id)}
+              onMouseDown={(e) => handleItemDragStart(e, item.id)}
+            >
+              {item.icon.component}
+            </div>
+          ) : (
+            // Render regular items with context menu
+            <ContextMenu key={item.id}>
+              <ContextMenuTrigger>
+                <div
+                  className={`absolute cursor-move p-2 rounded-md ${
+                    selectedItem === item.id
+                      ? "bg-blue-100 ring-2 ring-blue-500"
+                      : "hover:bg-gray-200"
+                  } ${connectionMode && connectionSource !== item.id ? "hover:ring-2 hover:ring-purple-500" : ""}`}
+                  style={{ left: `${item.x - 16}px`, top: `${item.y - 16}px` }}
+                  onClick={(e) => handleItemClick(e, item.id)}
+                  onMouseDown={(e) => handleItemDragStart(e, item.id)}
+                >
+                  <div className="relative">
+                    {item.icon.component}
+                    {item.connectionConfig && item.connectionConfig.value && (
+                      <div className="absolute -top-1 -right-1 h-3 w-3 bg-green-500 rounded-full" title="Has configuration" />
+                    )}
+                  </div>
+                </div>
+              </ContextMenuTrigger>
+              <ContextMenuContent>
+                <ContextMenuItem onClick={() => handleOpenConfigDialog(item.id)}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Configure Connection</span>
+                </ContextMenuItem>
+              </ContextMenuContent>
+            </ContextMenu>
+          )
         ))}
       </div>
 
@@ -531,6 +602,22 @@ export function IconCanvas() {
           </div>
         </div>
       </div>
+
+      {/* Configuration Dialog */}
+      {configDialogItem && (
+        <ConnectionConfigForm
+          itemId={configDialogItem.id}
+          itemName={configDialogItem.icon.name}
+          iconType={getBaseIconId(configDialogItem.id)}
+          isOpen={configDialogOpen}
+          onClose={() => {
+            setConfigDialogOpen(false)
+            setConfigDialogItemId(null)
+          }}
+          onSave={handleSaveConnectionConfig}
+          initialConfig={configDialogItem.connectionConfig || { value: "" }}
+        />
+      )}
 
       {/* Add CSS for animated dashed lines */}
       <style jsx global>{`
