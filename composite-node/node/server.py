@@ -19,39 +19,59 @@ github_mcp = FastMCP("Github-MCP")
 
 @github_mcp.tool()
 async def github_tool(user_query: str): 
-    client = MCPClient("../mcp-servers/src/github/dist/index.js", github_pat)
-    response = await client.process_single_query(user_query)
-    await client.cleanup()
-    return response
+    client = None
+    try:
+        client = MCPClient("../mcp-servers/src/github/dist/index.js", github_pat)
+        await client.connect_to_server()
+        response = await client.process_query(user_query)
+        return response
+    finally:
+        if client:
+            await client.cleanup()
 
 # --- Postgres MCP ---
 postgres_mcp = FastMCP("Postgres-MCP")
 @postgres_mcp.tool()
 async def postgres_tool(user_query: str):
-    client = MCPClient("../mcp-servers/src/postgres/dist/index.js", postgres_url) 
-    response = await client.process_single_query(user_query)
-    await client.cleanup()
-    return response
+    client = None
+    try:
+        client = MCPClient("../mcp-servers/src/postgres/dist/index.js", postgres_url) 
+        await client.connect_to_server()
+        response = await client.process_query(user_query)
+        return response
+    finally:
+        if client:
+            await client.cleanup()
 
 # --- Redis MCP ---
 redis_mcp = FastMCP("Redis-MCP")
 
 @redis_mcp.tool()
 async def redis_tool(user_query: str):
-    client = MCPClient("../mcp-servers/src/redis/dist/index.js", redis_url)
-    response = await client.process_single_query(user_query)
-    await client.cleanup()
-    return response
+    client = None
+    try:
+        client = MCPClient("../mcp-servers/src/redis/dist/index.js", redis_url)
+        await client.connect_to_server()
+        response = await client.process_query(user_query)
+        return response
+    finally:
+        if client:
+            await client.cleanup()
 
 # --- Sentry MCP ---
 sentry_mcp = FastMCP("Sentry-MCP")
 
 @sentry_mcp.tool()
 async def sentry_tool(user_query: str):
-    client = MCPClient("../mcp-servers/src/sentry/src/mcp_server_sentry/server.py", sentry_auth_token)
-    response = await client.process_single_query(user_query)
-    await client.cleanup()
-    return response
+    client = None
+    try:
+        client = MCPClient("../mcp-servers/src/sentry/src/mcp_server_sentry/server.py", sentry_auth_token)
+        await client.connect_to_server()
+        response = await client.process_query(user_query)
+        return response
+    finally:
+        if client:
+            await client.cleanup()
 
 # Create the composite MCP
 mcp = FastMCP("Composite")

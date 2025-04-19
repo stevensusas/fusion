@@ -93,16 +93,35 @@ class CompositeServer:
             env=env_dict
         )
         
-        stdio_transport = await self.exit_stack.enter_async_context(stdio_client(server_params))
-        self.stdio, self.write = stdio_transport
-        self.session = await self.exit_stack.enter_async_context(ClientSession(self.stdio, self.write))
+        # Clean up any existing resources before starting new ones
+        if self.session:
+            try:
+                await self.session.aclose()
+                self.session = None
+            except Exception as e:
+                print(f"Warning: Error closing existing session: {e}")
+                
+        # Reset exit stack to ensure clean state
+        await self.exit_stack.aclose()
+        self.exit_stack = AsyncExitStack()
         
-        await self.session.initialize()
-        
-        # List available tools
-        response = await self.session.list_tools()
-        tools = response.tools
-        print("\nConnected to server with tools:", [tool.name for tool in tools])
+        try:
+            # Create new connections in the current task context
+            stdio_transport = await self.exit_stack.enter_async_context(stdio_client(server_params))
+            self.stdio, self.write = stdio_transport
+            self.session = await self.exit_stack.enter_async_context(ClientSession(self.stdio, self.write))
+            
+            await self.session.initialize()
+            
+            # List available tools
+            response = await self.session.list_tools()
+            tools = response.tools
+            print("\nConnected to server with tools:", [tool.name for tool in tools])
+        except Exception as e:
+            print(f"Error connecting to server: {str(e)}")
+            # Make sure to clean up any partially initialized resources
+            await self.cleanup()
+            raise
 
     async def process_query(self, query: str) -> str:
         """Process a query using Claude and available tools"""
@@ -173,8 +192,14 @@ class CompositeServer:
         Returns:
             A single response string
         """
-        await self.connect_to_server()
-        return await self.process_query(query)
+        # Create all async context managers in the same task
+        try:
+            await self.connect_to_server()
+            response = await self.process_query(query)
+            return response
+        finally:
+            # Make sure cleanup happens in the same task
+            await self.cleanup()
 
     async def chat_loop(self):
         """Run an interactive chat loop"""
@@ -207,11 +232,8 @@ async def get_composite_server(server_script_path: str = "server.py"):
         redis_url, 
         sentry_auth_token
     )
-    try:
-        await server.connect_to_server()
-        yield server
-    finally:
-        await server.cleanup()
+    await server.connect_to_server()
+    return server
 
 # API endpoints
 @app.post("/api/query", response_model=QueryResponse)
@@ -226,6 +248,7 @@ async def api_query(request: QueryRequest):
     print(f"DEBUG: Using server script: {server_script}")
     print(f"DEBUG: Environment variables available: GITHUB_PAT={'✓' if github_pat_val else '✗'}, POSTGRES_URL={'✓' if postgres_url_val else '✗'}, REDIS_URL={'✓' if redis_url_val else '✗'}, SENTRY_AUTH_TOKEN={'✓' if sentry_auth_token_val else '✗'}")
     
+    # Create a fresh server instance for each request
     server = CompositeServer(
         server_script, 
         github_pat_val, 
@@ -233,21 +256,33 @@ async def api_query(request: QueryRequest):
         redis_url_val, 
         sentry_auth_token_val
     )
+    
+    response_text = ""
+    error_occurred = False
+    
     try:
         print("DEBUG: Connecting to server...")
         await server.connect_to_server()
         print("DEBUG: Connected, processing query...")
-        response = await server.process_query(request.query)
+        response_text = await server.process_query(request.query)
         print("DEBUG: Query processed successfully")
-        return QueryResponse(response=response)
     except Exception as e:
+        error_occurred = True
         print(f"DEBUG: Error in API endpoint: {str(e)}")
         import traceback
         print(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
     finally:
+        # Always clean up in the same task context that created the resources
         print("DEBUG: Cleaning up resources")
-        await server.cleanup()
+        try:
+            await server.cleanup()
+        except Exception as cleanup_error:
+            print(f"DEBUG: Cleanup error: {str(cleanup_error)}")
+    
+    # Only return a response if no error occurred
+    if not error_occurred:
+        return QueryResponse(response=response_text)
 
 async def main():
     parser = argparse.ArgumentParser(description='MCP Client')

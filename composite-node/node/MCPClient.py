@@ -43,6 +43,18 @@ class MCPClient:
             env_dict = {self.env_name: self.env_variable} if self.env_variable else None
             if env_dict:
                 print(f"Setting environment variable {self.env_name} for: {server_script_path}")
+        
+        # Clean up any existing resources before starting new ones
+        if self.session:
+            try:
+                await self.session.aclose()
+                self.session = None
+            except Exception as e:
+                print(f"Warning: Error closing existing session: {e}")
+                
+        # Reset exit stack to ensure clean state
+        await self.exit_stack.aclose()
+        self.exit_stack = AsyncExitStack()
             
         server_params = StdioServerParameters(
             command=command,
@@ -50,16 +62,23 @@ class MCPClient:
             env=env_dict
         )
         
-        stdio_transport = await self.exit_stack.enter_async_context(stdio_client(server_params))
-        self.stdio, self.write = stdio_transport
-        self.session = await self.exit_stack.enter_async_context(ClientSession(self.stdio, self.write))
-        
-        await self.session.initialize()
-        
-        # List available tools
-        response = await self.session.list_tools()
-        tools = response.tools
-        print("\nConnected to server with tools:", [tool.name for tool in tools])
+        try:
+            # Create new connections in the current task context
+            stdio_transport = await self.exit_stack.enter_async_context(stdio_client(server_params))
+            self.stdio, self.write = stdio_transport
+            self.session = await self.exit_stack.enter_async_context(ClientSession(self.stdio, self.write))
+            
+            await self.session.initialize()
+            
+            # List available tools
+            response = await self.session.list_tools()
+            tools = response.tools
+            print("\nConnected to server with tools:", [tool.name for tool in tools])
+        except Exception as e:
+            print(f"Error connecting to server: {str(e)}")
+            # Make sure to clean up any partially initialized resources
+            await self.cleanup()
+            raise
 
     async def process_query(self, query: str) -> str:
         """Process a query using Claude and available tools"""
