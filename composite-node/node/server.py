@@ -6,29 +6,40 @@ from MCPClient import MCPClient
 github_mcp = FastMCP("Github-MCP")
 
 @github_mcp.tool()
-def github_tool(): 
-    return "Github OK"
+async def github_tool(user_query: str): 
+    client = MCPClient("../mcp-servers/src/github/dist/index.js")
+    response = await client.process_single_query(user_query)
+    await client.cleanup()
+    return response
 
 # --- Postgres MCP ---
 postgres_mcp = FastMCP("Postgres-MCP")
-
 @postgres_mcp.tool()
-def postgres_tool():
-    return "Github OK"
+async def postgres_tool(user_query: str):
+    client = MCPClient("../mcp-servers/src/postgres/dist/index.js") 
+    response = await client.process_single_query(user_query)
+    await client.cleanup()
+    return response
 
 # --- Redis MCP ---
 redis_mcp = FastMCP("Redis-MCP")
 
 @redis_mcp.tool()
-def redis_tool():
-    return "Github OK"
+async def redis_tool(user_query: str):
+    client = MCPClient("../mcp-servers/src/redis/dist/index.js")
+    response = await client.process_single_query(user_query)
+    await client.cleanup()
+    return response
 
 # --- Sentry MCP ---
 sentry_mcp = FastMCP("Sentry-MCP")
 
 @sentry_mcp.tool()
-def sentry_tool():
-    return "Sentry OK"
+async def sentry_tool(user_query: str):
+    client = MCPClient("../mcp-servers/src/sentry/src/mcp_server_sentry/server.py")
+    response = await client.process_single_query(user_query)
+    await client.cleanup()
+    return response
 
 # Create the composite MCP
 mcp = FastMCP("Composite")
