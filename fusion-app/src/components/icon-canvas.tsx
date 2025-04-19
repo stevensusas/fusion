@@ -351,6 +351,13 @@ export function IconCanvas() {
     }
   }
 
+  // Handle spinning up a server
+  const handleSpinUpServer = (itemId: string) => {
+    // This would typically communicate with a backend service
+    // For now, we'll just show a simple notification
+    alert(`Spinning up server ${itemId}. This would connect to your services in a real implementation.`)
+  }
+
   // Calculate the center point of an item
   const getItemCenter = (itemId: string) => {
     const item = canvasItems.find((item) => item.id === itemId)
@@ -499,51 +506,42 @@ export function IconCanvas() {
 
         {/* Render canvas items with context menu (except for composite servers) */}
         {canvasItems.map((item) => (
-          item.isComposite ? (
-            // Render composite server without context menu
-            <div
-              key={item.id}
-              className={`absolute cursor-move p-2 rounded-md ${
-                selectedItem === item.id
-                  ? "bg-blue-100 ring-2 ring-blue-500"
-                  : "bg-purple-50 hover:bg-purple-100"
-              } ${connectionMode && connectionSource !== item.id ? "hover:ring-2 hover:ring-purple-500" : ""}`}
-              style={{ left: `${item.x - 16}px`, top: `${item.y - 16}px` }}
-              onClick={(e) => handleItemClick(e, item.id)}
-              onMouseDown={(e) => handleItemDragStart(e, item.id)}
-            >
-              {item.icon.component}
-            </div>
-          ) : (
-            // Render regular items with context menu
-            <ContextMenu key={item.id}>
-              <ContextMenuTrigger>
-                <div
-                  className={`absolute cursor-move p-2 rounded-md ${
-                    selectedItem === item.id
-                      ? "bg-blue-100 ring-2 ring-blue-500"
+          <ContextMenu key={item.id}>
+            <ContextMenuTrigger>
+              <div
+                className={`absolute cursor-move p-2 rounded-md ${
+                  selectedItem === item.id
+                    ? "bg-blue-100 ring-2 ring-blue-500"
+                    : item.isComposite
+                      ? "bg-purple-50 hover:bg-purple-100"
                       : "hover:bg-gray-200"
-                  } ${connectionMode && connectionSource !== item.id ? "hover:ring-2 hover:ring-purple-500" : ""}`}
-                  style={{ left: `${item.x - 16}px`, top: `${item.y - 16}px` }}
-                  onClick={(e) => handleItemClick(e, item.id)}
-                  onMouseDown={(e) => handleItemDragStart(e, item.id)}
-                >
-                  <div className="relative">
-                    {item.icon.component}
-                    {item.connectionConfig && item.connectionConfig.value && (
-                      <div className="absolute -top-1 -right-1 h-3 w-3 bg-green-500 rounded-full" title="Has configuration" />
-                    )}
-                  </div>
+                } ${connectionMode && connectionSource !== item.id ? "hover:ring-2 hover:ring-purple-500" : ""}`}
+                style={{ left: `${item.x - 16}px`, top: `${item.y - 16}px` }}
+                onClick={(e) => handleItemClick(e, item.id)}
+                onMouseDown={(e) => handleItemDragStart(e, item.id)}
+              >
+                <div className="relative">
+                  {item.icon.component}
+                  {!item.isComposite && item.connectionConfig && item.connectionConfig.value && (
+                    <div className="absolute -top-1 -right-1 h-3 w-3 bg-green-500 rounded-full" title="Has configuration" />
+                  )}
                 </div>
-              </ContextMenuTrigger>
-              <ContextMenuContent>
+              </div>
+            </ContextMenuTrigger>
+            <ContextMenuContent>
+              {item.isComposite ? (
+                <ContextMenuItem onClick={() => handleSpinUpServer(item.id)}>
+                  <Server className="mr-2 h-4 w-4" />
+                  <span>Spin Up Server</span>
+                </ContextMenuItem>
+              ) : (
                 <ContextMenuItem onClick={() => handleOpenConfigDialog(item.id)}>
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Configure Connection</span>
                 </ContextMenuItem>
-              </ContextMenuContent>
-            </ContextMenu>
-          )
+              )}
+            </ContextMenuContent>
+          </ContextMenu>
         ))}
       </div>
 
