@@ -7,7 +7,9 @@
 3. ```cd composite-node/mcp-servers && npm install && npm run build ```
 4. ```cd composite-node/mcp-server```, add your Anthropic API Key to the .env file
 
-After these steps you're all set!
+After these steps you're all set for future usage!
+
+## Usage
 
 ```cd fusio-desktop && npm start```
 
