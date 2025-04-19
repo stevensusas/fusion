@@ -1,0 +1,42 @@
+{
+  "name": "fusion-desktop",
+  "version": "1.0.0",
+  "description": "Electron wrapper for Fusion App",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "cd ../fusion-app && npm run build && npm run export && cd ../fusion-desktop && electron-builder",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^29.1.0",
+    "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.1"
+  },
+  "build": {
+    "appId": "com.fusion.desktop",
+    "productName": "Fusion Desktop",
+    "mac": {
+      "category": "public.app-category.developer-tools"
+    },
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../fusion-app/out",
+        "to": "fusion-app/out"
+      }
+    ]
+  }
+}

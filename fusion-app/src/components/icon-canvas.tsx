@@ -68,47 +68,37 @@ export function IconCanvas() {
   const icons: IconType[] = [
     // Available services
     {
-      id: "supabase",
-      component: (
-        <div className="flex items-center justify-center w-8 h-8 bg-[#3ECF8E] text-white rounded">
-          <svg viewBox="0 0 109 113" className="w-5 h-5" fill="currentColor">
-            <path d="M63.7076 110.284C60.8481 113.885 55.0502 111.912 54.9813 107.314L53.9738 40.0627L99.1935 40.0627C107.384 40.0627 111.952 49.5228 106.859 55.9374L63.7076 110.284Z" />
-            <path d="M45.317 2.07103C48.1765 -1.53037 53.9745 0.442937 54.0434 5.04076L54.4849 72.293H9.83113C1.64038 72.293 -2.92775 62.8329 2.1655 56.4183L45.317 2.07103Z" />
-          </svg>
-        </div>
-      ),
-      name: "Supabase",
-    },
-    {
-      id: "gcp",
+      id: "postgres",
       component: (
         <div className="flex items-center justify-center w-8 h-8 bg-white border border-gray-200 rounded">
-          <svg viewBox="0 0 24 24" className="w-6 h-6">
-            <path
-              d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm0 22.5c-5.79 0-10.5-4.71-10.5-10.5S6.21 1.5 12 1.5 22.5 6.21 22.5 12 17.79 22.5 12 22.5z"
-              fill="#4285F4"
-            />
-            <path
-              d="M12 4.5c-4.14 0-7.5 3.36-7.5 7.5s3.36 7.5 7.5 7.5 7.5-3.36 7.5-7.5-3.36-7.5-7.5-7.5zm0 13.5c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"
-              fill="#EA4335"
-            />
-            <path
-              d="M12 7.5c-2.48 0-4.5 2.02-4.5 4.5s2.02 4.5 4.5 4.5 4.5-2.02 4.5-4.5-2.02-4.5-4.5-4.5zm0 7.5c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"
-              fill="#FBBC05"
-            />
-            <path d="M12 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z" fill="#34A853" />
-          </svg>
+          <img src="/icons/postgres.svg" alt="PostgreSQL" className="w-6 h-6" draggable="false" />
         </div>
       ),
-      name: "Google Cloud",
+      name: "PostgreSQL",
+    },
+    {
+      id: "redis",
+      component: (
+        <div className="flex items-center justify-center w-8 h-8 bg-white border border-gray-200 rounded">
+          <img src="/icons/redis.svg" alt="Redis" className="w-6 h-6" draggable="false" />
+        </div>
+      ),
+      name: "Redis",
+    },
+    {
+      id: "github",
+      component: (
+        <div className="flex items-center justify-center w-8 h-8 bg-white border border-gray-200 rounded">
+          <img src="/icons/gitub.svg" alt="GitHub" className="w-6 h-6" draggable="false" />
+        </div>
+      ),
+      name: "GitHub",
     },
     {
       id: "sentry",
       component: (
         <div className="flex items-center justify-center w-8 h-8 bg-[#362D59] text-white rounded">
-          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
-            <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm0 19.2c-3.972 0-7.2-3.228-7.2-7.2 0-3.978 3.228-7.2 7.2-7.2 3.978 0 7.2 3.222 7.2 7.2 0 3.972-3.222 7.2-7.2 7.2zm.6-10.8h-1.2v4.8h1.2v-4.8zm0-2.4h-1.2v1.2h1.2V6z" />
-          </svg>
+          <img src="/icons/sentry.svg" alt="Sentry" className="w-5 h-5" draggable="false" />
         </div>
       ),
       name: "Sentry",
@@ -119,147 +109,20 @@ export function IconCanvas() {
       id: "google-workspace",
       component: (
         <div className="flex items-center justify-center w-8 h-8 bg-white border border-gray-200 rounded">
-          <svg viewBox="0 0 24 24" className="w-6 h-6">
-            <path d="M22 12L17 2H7L2 12L7 22H17L22 12Z" fill="#4285F4" />
-            <path d="M12 8V16L16 12L12 8Z" fill="white" />
-            <path d="M12 8L8 12L12 16V8Z" fill="#DADCE0" />
-          </svg>
+          <img src="/icons/gdrive.svg" alt="Google Workspace" className="w-6 h-6" draggable="false" />
         </div>
       ),
       name: "Google Workspace",
       comingSoon: true,
     },
     {
-      id: "aws",
+      id: "slack",
       component: (
         <div className="flex items-center justify-center w-8 h-8 bg-white border border-gray-200 rounded">
-          <svg viewBox="0 0 24 24" className="w-6 h-6">
-            <path
-              d="M13.527 12.49l-.23.23-.207-.207.207-.207.23.184zm.23.253l-.23.23-.207-.207.207-.23.23.207zm-.23-.69l-.23.23-.207-.208.207-.23.23.208zm-.437.437l-.23.23-.207-.207.207-.23.23.207zm-.23-.437l-.23.23-.207-.208.207-.23.23.208zm-.437.437l-.23.23-.207-.207.207-.23.23.207zm5.477-1.288c0 .23-.207.437-.437.437h-1.15c-.23 0-.437-.207-.437-.437v-1.15c0-.23.207-.437.437-.437h1.15c.23 0 .437.207.437.437v1.15zm-2.3 0c0 .23-.207.437-.437.437h-1.15c-.23 0-.437-.207-.437-.437v-1.15c0-.23.207-.437.437-.437h1.15c.23 0 .437.207.437.437v1.15zm-2.3 0c0 .23-.207.437-.437.437h-1.15c-.23 0-.437-.207-.437-.437v-1.15c0-.23.207-.437.437-.437h1.15c.23 0 .437.207.437.437v1.15zm-2.3 0c0 .23-.207.437-.437.437h-1.15c-.23 0-.437-.207-.437-.437v-1.15c0-.23.207-.437.437-.437h1.15c.23 0 .437.207.437.437v1.15zm-2.3 0c0 .23-.207.437-.437.437h-1.15c-.23 0-.437-.207-.437-.437v-1.15c0-.23.207-.437.437-.437h1.15c.23 0 .437.207.437.437v1.15zm9.2 2.3c0 .23-.207.437-.437.437h-1.15c-.23 0-.437-.207-.437-.437v-1.15c0-.23.207-.437.437-.437h1.15c.23 0 .437.207.437.437v1.15zm-2.3 0c0 .23-.207.437-.437.437h-1.15c-.23 0-.437-.207-.437-.437v-1.15c0-.23.207-.437.437-.437h1.15c.23 0 .437.207.437.437v1.15zm-2.3 0c0 .23-.207.437-.437.437h-1.15c-.23 0-.437-.207-.437-.437v-1.15c0-.23.207-.437.437-.437h1.15c.23 0 .437.207.437.437v1.15zm-2.3 0c0 .23-.207.437-.437.437h-1.15c-.23 0-.437-.207-.437-.437v-1.15c0-.23.207-.437.437-.437h1.15c.23 0 .437.207.437.437v1.15zm-2.3 0c0 .23-.207.437-.437.437h-1.15c-.23 0-.437-.207-.437-.437v-1.15c0-.23.207-.437.437-.437h1.15c.23 0 .437.207.437.437v1.15zm9.2 2.3c0 .23-.207.437-.437.437h-1.15c-.23 0-.437-.207-.437-.437v-1.15c0-.23.207-.437.437-.437h1.15c.23 0 .437.207.437.437v1.15zm-2.3 0c0 .23-.207.437-.437.437h-1.15c-.23 0-.437-.207-.437-.437v-1.15c0-.23.207-.437.437-.437h1.15c.23 0 .437.207.437.437v1.15zm-2.3 0c0 .23-.207.437-.437.437h-1.15c-.23 0-.437-.207-.437-.437v-1.15c0-.23.207-.437.437-.437h1.15c.23 0 .437.207.437.437v1.15zm-2.3 0c0 .23-.207.437-.437.437h-1.15c-.23 0-.437-.207-.437-.437v-1.15c0-.23.207-.437.437-.437h1.15c.23 0 .437.207.437.437v1.15zm-2.3 0c0 .23-.207.437-.437.437h-1.15c-.23 0-.437-.207-.437-.437v-1.15c0-.23.207-.437.437-.437h1.15c.23 0 .437.207.437.437v1.15z"
-              fill="#F90"
-            />
-          </svg>
+          <img src="/icons/slack.svg" alt="Slack" className="w-6 h-6" draggable="false" />
         </div>
       ),
-      name: "AWS",
-      comingSoon: true,
-    },
-    {
-      id: "azure",
-      component: (
-        <div className="flex items-center justify-center w-8 h-8 bg-white border border-gray-200 rounded">
-          <svg viewBox="0 0 24 24" className="w-6 h-6">
-            <path
-              d="M5.483 21.3H24L14.025 4.013l-3.038 8.347 5.836 6.938L5.483 21.3zM13.23 2.7L8.91 12.35 0 19.253h5.1L13.23 2.7z"
-              fill="#0078D4"
-            />
-          </svg>
-        </div>
-      ),
-      name: "Azure",
-      comingSoon: true,
-    },
-    {
-      id: "vercel",
-      component: (
-        <div className="flex items-center justify-center w-8 h-8 bg-black text-white rounded">
-          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
-            <path d="M12 2L2 19.5h20L12 2z" />
-          </svg>
-        </div>
-      ),
-      name: "Vercel",
-      comingSoon: true,
-    },
-    {
-      id: "netlify",
-      component: (
-        <div className="flex items-center justify-center w-8 h-8 bg-white border border-gray-200 rounded">
-          <svg viewBox="0 0 24 24" className="w-6 h-6">
-            <path
-              d="M16.934 8.519a1.044 1.044 0 0 1 .303.23l2.349-1.045-2.192-2.171-.491 2.954zM12.06 6.546a1.305 1.305 0 0 1 .209.574l3.497 1.482a1.044 1.044 0 0 1 .355-.177l.574-3.55-2.13-2.234-2.505 3.852v.053zm11.933 5.491l-3.748-3.748-2.548 1.044 6.264 2.662s.053.042.032.042zm-.627.606l-6.013-2.569a1.044 1.044 0 0 1-.7.407l-.647 3.957a1.044 1.044 0 0 1 .303.731l3.633.762 3.33-3.31v-.062zM15.4 9.25L12.132 7.86a1.2 1.2 0 0 1-1.044.543h-.199L8.185 12.58l7.225-3.132v.01a.887.887 0 0 1 0-.167.052.052 0 0 0-.01-.041zm3.967 7.308l-3.195-.658a1.096 1.096 0 0 1-.46.344l-.761 4.72 4.437-4.396s-.01.02-.021.02zm-4.469-.324a1.044 1.044 0 0 1-.616-.71l-5.95-1.222-.084.136 5.398 7.81.323-.324.919-5.67s.031.022.01.011zm-6.441-2.652l5.878 1.211a1.044 1.044 0 0 1 .824-.522l.637-3.894-.135-.115-7.308 3.132a1.817 1.817 0 0 1 .104.188zm-2.464.981l-.125-.125-2.537 1.044 1.232 1.222 1.399-2.172zm1.67.397a1.368 1.368 0 0 1-.563.125 1.389 1.389 0 0 1-.45-.073l-1.544 2.245 6.765 6.702 1.19-1.18zm-.95-2.641a1.702 1.702 0 0 1 .314 0 1.378 1.378 0 0 1 .344 0l2.735-4.25a1.19 1.19 0 0 1-.334-.824 1.242 1.242 0 0 1 0-.271l-3.32-1.535-2.672 2.6zm.303-7.402l3.237 1.378a1.242 1.242 0 0 1 .835-.282 1.357 1.357 0 0 1 .397.063l2.526-3.947L11.923.041 7.016 4.854s-.01.052 0 .063zm-1.21 8.164a1.566 1.566 0 0 1 .24-.334L3.278 8.613 0 11.797l5.804 1.284zm-.262.7L.533 12.735l2.203 2.235 2.777-1.18z"
-              fill="#00C7B7"
-            />
-          </svg>
-        </div>
-      ),
-      name: "Netlify",
-      comingSoon: true,
-    },
-    {
-      id: "stripe",
-      component: (
-        <div className="flex items-center justify-center w-8 h-8 bg-white border border-gray-200 rounded">
-          <svg viewBox="0 0 24 24" className="w-6 h-6">
-            <path
-              d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z"
-              fill="#6772E5"
-            />
-          </svg>
-        </div>
-      ),
-      name: "Stripe",
-      comingSoon: true,
-    },
-    {
-      id: "github",
-      component: (
-        <div className="flex items-center justify-center w-8 h-8 bg-white border border-gray-200 rounded">
-          <svg viewBox="0 0 24 24" className="w-6 h-6">
-            <path
-              d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"
-              fill="#181717"
-            />
-          </svg>
-        </div>
-      ),
-      name: "GitHub",
-      comingSoon: true,
-    },
-    {
-      id: "auth0",
-      component: (
-        <div className="flex items-center justify-center w-8 h-8 bg-white border border-gray-200 rounded">
-          <svg viewBox="0 0 24 24" className="w-6 h-6">
-            <path
-              d="M21.98 7.448L19.62 0H4.347L2.02 7.448c-1.352 4.312.03 9.206 3.815 12.015L12.007 24l6.157-4.552c3.755-2.81 5.182-7.688 3.815-12.015l-6.16 4.58 2.343 7.45-6.157-4.597-6.158 4.58 2.358-7.433-6.188-4.55 7.63-.045L12.008 0l2.356 7.404 7.615.044z"
-              fill="#EB5424"
-            />
-          </svg>
-        </div>
-      ),
-      name: "Auth0",
-      comingSoon: true,
-    },
-    {
-      id: "firebase",
-      component: (
-        <div className="flex items-center justify-center w-8 h-8 bg-white border border-gray-200 rounded">
-          <svg viewBox="0 0 24 24" className="w-6 h-6">
-            <path
-              d="M3.89 15.673L6.255.461A.542.542 0 0 1 7.27.289L9.813 5.06 3.89 15.673zm16.795 3.691L18.433 5.365a.543.543 0 0 0-.918-.295l-14.2 14.294 7.857 4.428a1.62 1.62 0 0 0 1.587 0l7.926-4.428zM14.3 7.148l-1.82-3.482
-              a.542.542 0 0 0-.96 0L3.53 17.984 14.3 7.148z"
-              fill="#FFCA28"
-            />
-          </svg>
-        </div>
-      ),
-      name: "Firebase",
-      comingSoon: true,
-    },
-    {
-      id: "mongodb",
-      component: (
-        <div className="flex items-center justify-center w-8 h-8 bg-white border border-gray-200 rounded">
-          <svg viewBox="0 0 24 24" className="w-6 h-6">
-            <path
-              d="M17.193 9.555c-1.264-5.58-4.252-7.414-4.573-8.115-.28-.394-.53-.954-.735-1.44-.036.495-.055.685-.523 1.184-.723.566-4.438 3.682-4.74 10.02-.282 5.912 4.27 9.435 4.888 9.884l.07.05A73.49 73.49 0 0 1 11.91 24h.481c.114-1.032.284-2.056.51-3.07.417-.296.604-.463.85-.693a11.342 11.342 0 0 0 3.639-8.464c.01-.814-.103-1.662-.197-2.218zm-5.336 8.195s0-8.291.275-8.29c.213 0 .49 10.695.49 10.695-.381-.045-.765-1.76-.765-2.405z"
-              fill="#13AA52"
-            />
-          </svg>
-        </div>
-      ),
-      name: "MongoDB",
+      name: "Slack",
       comingSoon: true,
     },
   ]
@@ -274,13 +137,20 @@ export function IconCanvas() {
       e.preventDefault()
       return
     }
+    
+    // Set drag data and effect
     e.dataTransfer.setData("text/plain", icon.id)
+    e.dataTransfer.effectAllowed = "copy"
   }
 
   // Handle dropping an icon onto the canvas
   const handleCanvasDrop = (e: React.DragEvent) => {
     e.preventDefault()
     const iconId = e.dataTransfer.getData("text/plain")
+    
+    // If no data was transferred, return early
+    if (!iconId) return
+    
     const icon = getIconById(iconId)
 
     // Don't add "Coming Soon" icons to the canvas
