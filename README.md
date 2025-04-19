@@ -18,5 +18,7 @@ Enjoy!
 ## Repository Structure
 
 ```/composite-node```: source code for the Fusion composite node, MCP servers that bridges model context spaces of children MCP servers. See Directory README for more.
+
 ```/fusion-app```: NextJS webapp for the GUI of the Fusion platform
+
 ```/fusion-desktop```: ElectronJS wrapper for the Fusion GUI, allow running Fusion platform on MacOS as a Desktop application
